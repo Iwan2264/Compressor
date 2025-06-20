@@ -18,7 +18,6 @@ def pdf_page(page: ft.Page):
     file_picker = ft.FilePicker()
     page.overlay.append(file_picker)
 
-    # 🔄 CHANGED: single file → multiple files
     selected_files = []  # Changed from selected_file = None
     status = ft.Text("", color="green", size=16)
     selected_quality = ft.Text("📺 Selected: Printer (Medium Compression)", size=14)
@@ -57,7 +56,7 @@ def pdf_page(page: ft.Page):
             page.update()
             return
 
-        failed = []  # 🆕 Track failed files
+        failed = []  
 
         for file in selected_files:
             folder = os.path.dirname(file.path)
@@ -70,7 +69,6 @@ def pdf_page(page: ft.Page):
             except Exception:
                 failed.append(file.name)
 
-        # 🆕 Display result status
         if failed:
             status.value = f"⚠️ Some files failed: {', '.join(failed)}"
             status.color = "red"
@@ -98,7 +96,6 @@ def pdf_page(page: ft.Page):
 
             selected_quality,
 
-            # 🆕 Allow multiple PDFs to be picked
             ft.ElevatedButton("📁 Pick PDFs", on_click=lambda e: file_picker.pick_files(allowed_extensions=["pdf"], allow_multiple=True)),
             ft.ElevatedButton("Compress Now", on_click=handle_compress),
             status,
