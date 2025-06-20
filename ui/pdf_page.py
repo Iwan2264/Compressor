@@ -18,7 +18,8 @@ def pdf_page(page: ft.Page):
     file_picker = ft.FilePicker()
     page.overlay.append(file_picker)
 
-    selected_file = None
+    # 🔄 CHANGED: single file → multiple files
+    selected_files = []  # Changed from selected_file = None
     status = ft.Text("", color="green", size=16)
     selected_quality = ft.Text("📺 Selected: Printer (Medium Compression)", size=14)
 
@@ -37,37 +38,48 @@ def pdf_page(page: ft.Page):
         page.update()
 
     def on_file_selected(e):
-        nonlocal selected_file
+        nonlocal selected_files
         if e.files:
-            selected_file = e.files[0]
-            status.value = f"✅ Selected: {selected_file.name}"
+            selected_files = e.files  # 🆕 Store list of selected files
+            names = ", ".join([f.name for f in selected_files])
+            status.value = f"✅ Selected: {names}"
             status.color = "green"
         else:
-            selected_file = None
-            status.value = "❌ No file selected."
+            selected_files = []
+            status.value = "❌ No files selected."
             status.color = "red"
         page.update()
 
     def handle_compress(e):
-        if not selected_file:
-            status.value = "❌ Please select a PDF file."
+        if not selected_files:
+            status.value = "❌ Please select one or more PDF files."
             status.color = "red"
             page.update()
             return
 
-        folder = os.path.dirname(selected_file.path)
-        filename = os.path.splitext(selected_file.name)[0]
-        initial_output = os.path.join(folder, f"{filename}_compressed.pdf")
-        output_path = get_unique_filename(initial_output)
+        failed = []  # 🆕 Track failed files
 
-        try:
-            compress_pdf(selected_file.path, output_path, quality=quality_value)
-            status.value = f"✅ Compressed PDF saved to:\n{output_path}"
-            status.color = "green"
-            subprocess.Popen(f'explorer /select,"{output_path}"')
-        except Exception as ex:
-            status.value = f"❌ Compression failed: {ex}"
+        for file in selected_files:
+            folder = os.path.dirname(file.path)
+            filename = os.path.splitext(file.name)[0]
+            initial_output = os.path.join(folder, f"{filename}_compressed.pdf")
+            output_path = get_unique_filename(initial_output)
+
+            try:
+                compress_pdf(file.path, output_path, quality=quality_value)
+            except Exception:
+                failed.append(file.name)
+
+        # 🆕 Display result status
+        if failed:
+            status.value = f"⚠️ Some files failed: {', '.join(failed)}"
             status.color = "red"
+        else:
+            status.value = "✅ All PDFs compressed successfully!"
+            status.color = "green"
+            # Optionally open the folder after compressing
+            subprocess.Popen(f'explorer "{os.path.dirname(selected_files[0].path)}"')
+
         page.update()
 
     file_picker.on_result = on_file_selected
@@ -76,7 +88,7 @@ def pdf_page(page: ft.Page):
         [
             ft.Text("📄 PDF Compressor", size=28, weight="bold"),
             ft.Text("Reduce PDF size without losing visible quality.", size=16),
-            
+
             ft.Row([
                 ft.ElevatedButton("📺 Screen", on_click=lambda e: set_quality("screen")),
                 ft.ElevatedButton("📖 eBook", on_click=lambda e: set_quality("ebook")),
@@ -86,7 +98,8 @@ def pdf_page(page: ft.Page):
 
             selected_quality,
 
-            ft.ElevatedButton("📁 Pick PDF", on_click=lambda e: file_picker.pick_files(allowed_extensions=["pdf"])),
+            # 🆕 Allow multiple PDFs to be picked
+            ft.ElevatedButton("📁 Pick PDFs", on_click=lambda e: file_picker.pick_files(allowed_extensions=["pdf"], allow_multiple=True)),
             ft.ElevatedButton("Compress Now", on_click=handle_compress),
             status,
             ft.ElevatedButton("⬅️ Back", on_click=lambda e: page.go("/"))
