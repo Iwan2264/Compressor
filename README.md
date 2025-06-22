@@ -60,6 +60,6 @@ Known Limitations
 - .gz format is not supported standalone — use .tar.gz instead
 
 ---------------------
-License
+**License**
 ---------------------
 This project is open-source under the MIT License.

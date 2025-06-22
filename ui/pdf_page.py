@@ -18,11 +18,11 @@ def pdf_page(page: ft.Page):
     file_picker = ft.FilePicker()
     page.overlay.append(file_picker)
 
-    selected_files = []  # Changed from selected_file = None
+    selected_files = []
     status = ft.Text("", color="green", size=16)
     selected_quality = ft.Text("📺 Selected: Printer (Medium Compression)", size=14)
 
-    quality_value = "printer"  # Default
+    quality_value = "printer"
 
     def set_quality(q):
         nonlocal quality_value
@@ -39,7 +39,7 @@ def pdf_page(page: ft.Page):
     def on_file_selected(e):
         nonlocal selected_files
         if e.files:
-            selected_files = e.files  # 🆕 Store list of selected files
+            selected_files = e.files
             names = ", ".join([f.name for f in selected_files])
             status.value = f"✅ Selected: {names}"
             status.color = "green"
@@ -75,7 +75,6 @@ def pdf_page(page: ft.Page):
         else:
             status.value = "✅ All PDFs compressed successfully!"
             status.color = "green"
-            # Optionally open the folder after compressing
             subprocess.Popen(f'explorer "{os.path.dirname(selected_files[0].path)}"')
 
         page.update()
