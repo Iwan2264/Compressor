@@ -9,15 +9,14 @@ def image_page(page: ft.Page):
     selected_files = []
     status = ft.Text("", color="green", size=16)
     
-    # Smaller slider with 5% steps
     quality_slider = ft.Slider(
         min=10,
         max=100,
-        divisions=18,  # (100 - 10) / 5 = 18 steps
+        divisions=18,  
         label="{value}%",
         value=70,
-        width=250,  # makes it look smaller and cleaner
-        thumb_color="blue",  # optional styling
+        width=250, 
+        thumb_color="blue", 
         inactive_color="grey"
     )
 
