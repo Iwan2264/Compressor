@@ -12,7 +12,7 @@ def compress_pdf(input_path, output_path, quality="screen"):
     """
     try:
         subprocess.check_call([
-            "gswin64c",  # Change if needed depending on your OS
+            "gswin64c",
             "-sDEVICE=pdfwrite",
             "-dCompatibilityLevel=1.4",
             f"-dPDFSETTINGS=/{quality}",

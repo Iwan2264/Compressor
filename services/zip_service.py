@@ -39,7 +39,6 @@ def _compress_zip(file_paths, output_path):
 def _add_directory_to_zip(zipf, dir_path):
     for root, dirs, files in os.walk(dir_path):
         if not files and not dirs:
-            # Add empty folder
             zip_info = zipfile.ZipInfo(os.path.relpath(root, os.path.dirname(dir_path)) + "/")
             zipf.writestr(zip_info, "")
         for file in files:
